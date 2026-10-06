@@ -107,7 +107,7 @@ userRouter.get("/users", async (req, res) => {
     if (page < 1 || (page > totalPages && totalPages > 0)) {
       res.status(400).json({
         success: false,
-        message: "Invalid page number",
+        message: `Page numbers only go up to ${totalPages}`,
       });
       return;
     }

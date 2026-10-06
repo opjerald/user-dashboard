@@ -25,7 +25,7 @@ const Table = ({ data }: TableProps) => {
       const data = await deleteUser(userId);
 
       toast.success(data.message);
-      window.location.reload();
+      navigate("/");
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Failed to delete user";
@@ -57,34 +57,42 @@ const Table = ({ data }: TableProps) => {
       </thead>
 
       <tbody className="text-sm divide-y divide-slate-200">
-        {data.map((user) => (
-          <tr key={user.id}>
-            <td className="pl-0 px-3 py-3 font-medium text-slate-900 whitespace-nowrap">
-              {user.id}
-            </td>
-            <td className="px-3 py-3 text-slate-500">{user.name}</td>
-            <td className="px-3 py-3 text-slate-500">{user.username}</td>
-            <td className="px-3 py-3 text-slate-500">{user.email}</td>
-            <td className="pr-0 px-3 py-3 flex gap-3">
-              <button
-                type="button"
-                className="text-sm text-blue-700 dark:text-blue-500 cursor-pointer hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
-                aria-label={`Edit ${user.name}`}
-                onClick={() => handleEdit(user.id)}
-              >
-                Edit
-              </button>
-              <button
-                type="button"
-                className="text-sm text-red-700 dark:text-red-500 cursor-pointer hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
-                aria-label={`Delete ${user.name}`}
-                onClick={() => handleDeleteUser(user.id)}
-              >
-                Delete
-              </button>
+        {data.length ? (
+          data.map((user) => (
+            <tr key={user.id}>
+              <td className="pl-0 px-3 py-3 font-medium text-slate-900 whitespace-nowrap">
+                {user.id}
+              </td>
+              <td className="px-3 py-3 text-slate-500">{user.name}</td>
+              <td className="px-3 py-3 text-slate-500">{user.username}</td>
+              <td className="px-3 py-3 text-slate-500">{user.email}</td>
+              <td className="pr-0 px-3 py-3 flex gap-3">
+                <button
+                  type="button"
+                  className="text-sm text-indigo-500 cursor-pointer hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+                  aria-label={`Edit ${user.name}`}
+                  onClick={() => handleEdit(user.id)}
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  className="text-sm text-red-700 dark:text-red-500 cursor-pointer hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
+                  aria-label={`Delete ${user.name}`}
+                  onClick={() => handleDeleteUser(user.id)}
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          ))
+        ) : (
+          <tr>
+            <td colSpan={5} className="text-center pt-10 text-slate-500">
+              No record found.
             </td>
           </tr>
-        ))}
+        )}
       </tbody>
     </table>
   );
