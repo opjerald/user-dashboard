@@ -65,6 +65,34 @@ const filterUsers = (users: User[], query: string) => {
   );
 };
 
+const findUserConflict = (
+  users: User[],
+  userData: UserData,
+  excludeUserId?: number,
+) => {
+  const usernameExists = users.some(
+    (user) =>
+      user.id !== excludeUserId &&
+      user.username.toLowerCase() === userData.username.toLowerCase(),
+  );
+
+  if (usernameExists) {
+    return "Username already exists";
+  }
+
+  const emailExists = users.some(
+    (user) =>
+      user.id !== excludeUserId &&
+      user.email.toLowerCase() === userData.email.toLowerCase(),
+  );
+
+  if (emailExists) {
+    return "Email already exists";
+  }
+
+  return null;
+};
+
 userRouter.get("/users", async (req, res) => {
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
@@ -86,9 +114,9 @@ userRouter.get("/users", async (req, res) => {
 
     const startIndex = (page - 1) * limit;
     const endIndex = startIndex + limit;
-    
+
     const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
-    
+
     res.json({
       success: true,
       message: "Users fetched successfully",
@@ -101,7 +129,7 @@ userRouter.get("/users", async (req, res) => {
       },
     });
   } catch (error) {
-    handleError(res, error, "Failed to fetch users")
+    handleError(res, error, "Failed to fetch users");
   }
 });
 
@@ -136,10 +164,20 @@ userRouter.post("/users", async (req, res) => {
   try {
     const users = await getUsers();
 
+    const conflict = findUserConflict(users, userData);
+
+    if (conflict) {
+      res.status(409).json({
+        success: false,
+        message: conflict,
+      });
+      return;
+    }
+
     const newUser: User = {
       id: getNextUserId(users),
-      ...userData
-    }
+      ...userData,
+    };
 
     users.push(newUser);
 
@@ -151,7 +189,7 @@ userRouter.post("/users", async (req, res) => {
       data: users,
     });
   } catch (error) {
-    handleError(res, error, "Failed to create user"); 
+    handleError(res, error, "Failed to create user");
   }
 });
 
@@ -162,7 +200,7 @@ userRouter.put("/users/:id", async (req, res) => {
   try {
     const users = await getUsers();
 
-    const userIndex = getUserIndex(id, users)
+    const userIndex = getUserIndex(id, users);
 
     if (userIndex === -1) {
       res.status(404).json({
@@ -173,10 +211,20 @@ userRouter.put("/users/:id", async (req, res) => {
       return;
     }
 
+    const conflict = findUserConflict(users, userData, id);
+
+    if (conflict) {
+      res.status(409).json({
+        success: false,
+        message: conflict,
+      });
+      return;
+    }
+
     users[userIndex] = {
       id,
-      ...userData
-    }
+      ...userData,
+    };
 
     await saveUsers(users);
 
