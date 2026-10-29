@@ -36,6 +36,7 @@ const FormField = ({
           {...register(name, options)}
           className={INPUT_CLASS}
           placeholder={placeholder}
+          autoComplete="off"
         />
       </div>
 
